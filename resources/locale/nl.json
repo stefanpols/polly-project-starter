@@ -1,0 +1,11 @@
+{
+  "not_empty_validation_error":"Dit veld mag niet leeg zijn",
+  "email_validation_error":"Dit is geen geldig e-mail adres",
+  "url_validation_error":"Dit is geen geldige URL",
+  "ip_validation_error":"Dit is geen geldig IP-adres",
+  "domain_validation_error":"Dit is geen geldig domein",
+  "unique_validation_error":"Deze waarde is al in gebruik",
+  "login_failed_title":"Inloggen mislukt",
+  "login_failed_message":"Deze gebruikersnaam en wachtwoord combinatie komen niet overeen.",
+  "current_datetime":"Huidige datum/tijd is"
+}

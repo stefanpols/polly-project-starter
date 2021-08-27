@@ -1,0 +1,16 @@
+{
+
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+
+  "require": {
+    "vlucas/phpdotenv": "^5.3",
+    "polly/polly": "^1.0.3",
+    "tijsverkoyen/css-to-inline-styles": "^2.2",
+    "phpmailer/phpmailer": "^6.5"
+  }
+
+}

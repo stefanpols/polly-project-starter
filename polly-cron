@@ -1,0 +1,77 @@
+<?php
+
+use App\Helpers\Mailer;
+use App\Jobs\AbstractJob;
+use Polly\Core\App;
+use Polly\Core\Cronjob;
+use Polly\Core\Logger;
+
+require('vendor/autoload.php');
+
+
+$options = getopt("", ["job:"]);
+
+if(!isset($options['job']) || empty($options['job']))
+{
+    exit('No job specified');
+}
+
+try
+{
+    App::initialize(__DIR__);
+
+    $jobNamespace = "\App\Jobs\\".$options['job'];
+    if(!class_exists($jobNamespace))
+    {
+        throw new Exception("Call to undefined class ". $jobNamespace);
+    }
+
+    $job = new $jobNamespace();
+    if($job instanceof Cronjob)
+    {
+        $succeeded = $job->run();
+
+        if($job->sendResults() && !empty($job->getResults()))
+        {
+            $mail = Mailer::make("Cronjob ".$options['job']. " finished",
+                'Mails/Jobs/Report', [
+                    'jobSucceeded'=>$succeeded,
+                    'jobName'=>$options['job'],
+                    'jobResults'=>$job->getResults(),
+                    'jobErrors'=>$job->getErrors()
+                ]);
+            Mailer::log($mail);
+        }
+    }
+    else
+    {
+        throw new Exception($jobNamespace." is not an instance of Polly\Core\Cronjob");
+    }
+}
+catch(Exception $e)
+{
+    Logger::error(Logger::createFromException($e));
+    $mail = Mailer::make("Error while running cronjob ".$options['job'],
+        'Mails/Jobs/Report', [
+            'jobSucceeded'=>false,
+            'jobName'=>$options['job'],
+            'jobResults'=>[],
+            'jobErrors'=>[],
+            'jobException'=>$e
+        ]);
+    Mailer::log($mail);
+
+}
+catch(Error $error)
+{
+    Logger::error(Logger::createFromException(new ErrorException($error->getMessage(), $error->getCode(), 1, $error->getFile(), $error->getLine())));
+    $mail = Mailer::make("Error while running cronjob ".$options['job'],
+        'Mails/Jobs/Report', [
+        'jobSucceeded'=>false,
+        'jobName'=>$options['job'],
+        'jobResults'=>[],
+        'jobErrors'=>[],
+        'jobException'=>$error
+    ]);
+    Mailer::log($mail);
+}

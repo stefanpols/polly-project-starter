@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\{ENTITY_NAME};
+use Polly\Interfaces\IDatabaseConnection;
+use Polly\ORM\EntityRepository;
+
+class {ENTITY_NAME}Repository extends EntityRepository
+{
+    public function __construct(IDatabaseConnection $connection)
+    {
+        parent::__construct({ENTITY_NAME}::class, $connection);
+    }
+
+}

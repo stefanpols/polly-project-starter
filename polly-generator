@@ -1,0 +1,31 @@
+<?php
+
+use Polly\Generator\Creator;
+
+include('vendor/autoload.php');
+
+$options = getopt("", ["entity:"]);
+
+if(!isset($options['entity']) || empty($options['entity']))
+{
+    exit('No entity specified');
+}
+
+$entityConfig = include(__DIR__ . '/generate/'.$options['entity'].'.php');
+
+$templatePath = __DIR__ . '/generate/templates';
+$appDirectory = $options['appdir'] ?? __DIR__.'/app';
+
+$modelDirectory = $appDirectory. ($entityConfig['model_dir'] ?? '/Models');
+$repositoryDirectory = $appDirectory. ($entityConfig['repository_dir'] ?? '/Repositories');
+$serviceDirectory = $appDirectory. ($entityConfig['service_dir'] ?? '/Services');
+$controllerDirectory = $appDirectory. ($entityConfig['controller_dir'] ?? '/Controllers');
+$viewDirectory = $appDirectory. ($entityConfig['view_dir'] ?? '/Views');
+
+$createdFiles = Creator::all($entityConfig['entity'], $entityConfig['fields'], $entityConfig['relations'], $templatePath, ['model'=>$modelDirectory, 'repository'=>$repositoryDirectory, 'service'=>$serviceDirectory, 'controller'=>$controllerDirectory, 'view'=>$viewDirectory]);
+echo "\n";
+foreach($createdFiles as $file)
+{
+    echo "Created file: ".$file;
+    echo "\n";
+}

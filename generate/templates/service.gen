@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\{ENTITY_NAME};
+use App\Repositories\{ENTITY_NAME}Repository;
+use Polly\Core\Database;
+use Polly\ORM\EntityManager;
+use Polly\ORM\RepositoryService;
+
+class {ENTITY_NAME}Service extends RepositoryService
+{
+    public static function createRepository() : {ENTITY_NAME}Repository { return new {ENTITY_NAME}Repository(Database::default()); }
+    public static function getRepository(): {ENTITY_NAME}Repository { return EntityManager::getRepository({ENTITY_NAME}::class); }
+
+    /**
+     * @return {ENTITY_NAME}|null
+     */
+    public static function findById(string $id) : ?{ENTITY_NAME}
+    {
+        return parent::findById($id);
+    }
+
+    /**
+     * @return {ENTITY_NAME}[]
+     */
+    public static function all() : array
+    {
+        return parent::all();
+    }
+
+}
