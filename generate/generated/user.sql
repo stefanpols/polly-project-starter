@@ -11,5 +11,4 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE `user`
-	ADD PRIMARY KEY (`user_id`)
-COMMIT;
+	ADD PRIMARY KEY (`user_id`);

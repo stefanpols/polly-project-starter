@@ -13,4 +13,3 @@ CREATE TABLE `session` (
 ALTER TABLE `session`
 	ADD PRIMARY KEY (`session_id`),
 	ADD KEY `user_id` (`user_id`);
-COMMIT;
