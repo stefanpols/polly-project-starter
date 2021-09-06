@@ -1,6 +1,9 @@
 <?php
 
 
+use App\Agents\ApiAuthenticationAgent;
+use App\Controllers\Api\Auth;
+use App\Controllers\Api\Version;
 use App\Controllers\Web\Login;
 use App\Services\UserService;
 use Polly\Database\PDODriver;
@@ -65,61 +68,41 @@ return
      */
     'shutdown' =>
     [
-        'catch' => [E_ERROR, E_PARSE], //[],
-        'log' => [E_ALL] //[E_ALL, E_STRICT]
+        'catch' => [E_ERROR, E_PARSE],
+        'log' => [E_ALL]
     ],
 
-
-    /*
-     * The routing is dividable into groups. A group represents a different (sub)system which has a different endpoint.
-     * They can be used to separate routing and handler logics.
-     * Use wildcard (*) as base URL to catch all URL's
-     * If one group contains an other groups base URL it's important to first add the most specific.
-     * For example when https://example.com and https://example.com/api are the base URL's, you need to add the api path first.
-     *
-     * Examples for group usage:
-     * - System has a web environment (web.example.com) and an API (api.example.com)
-     * - System has a front-end (example.com) and a back-end system (backend.example.com).
-     *
-     * Options:
-     *      default_controller      Default controller to create when there could no controller be fetched from the URL. Default = index
-     *      default_method          Default method to invoke when there could no method be fetched from the URL. Default = index
-     *      groups                  array with group options:
-     *          base_url                The base url that an URL need to contain to identify this group. A wildcard can be used to catch all URL's
-     *          namespace               Namespace to find the controllers
-     *          public                  array of class constant references that dont need authentication. A wildcard can be used as well if everything should be public available.
-     *          authentication          An instance of IAuthenticationAgent that needs to handle the authentication of this group.
-     *                                  Polly\Support\Authentication\BasicAuthenticationAgent facilitates a default cookie/database based authenthication
-     *          authorization           An instance of IAuthorizationAgent that needs to handle the authorization of this group
-     *                                  Polly\Support\Authorization\RoleAuthorizationAgent facilitates a default role based autorization.
-     *
-     * All controllers needs to extends from Polly\Core\Controller
-     */
-    'routing' =>
-    [
-        'groups' =>
-        [
-            [
-                'base_url'          => env('API_URL'),
-                'namespace'         => "App\Controllers\Api",
-                'public'            => ['*'],
-            ],
-            [
-                'base_url'          => env('APP_URL'),
-                'namespace'         => "App\Controllers\Web",
-                'public'            => [Login::class],
-                'authentication'    => BasicAuthenticationAgent::getInstance(UserService::getInstance(), 0),
-                'authorization'     => RoleAuthorizationAgent::getInstance()
-            ]
-        ],
-    ],
-
+   /*
+    * The routing is dividable into groups. A group represents a different (sub)system which has a different endpoint.
+    * They can be used to separate routing and handler logics.
+    * Use wildcard (*) as base URL to catch all URL's
+    * If one group contains an other groups base URL it's important to first add the most specific.
+    * For example when https://example.com and https://example.com/api are the base URL's, you need to add the api path first.
+    *
+    * Examples for group usage:
+    * - System has a web environment (web.example.com) and an API (api.example.com)
+    * - System has a front-end (example.com) and a back-end system (backend.example.com).
+    *
+    * Options:
+    *      default_controller      Default controller to create when there could no controller be fetched from the URL. Default = index
+    *      default_method          Default method to invoke when there could no method be fetched from the URL. Default = index
+    *      groups                  array with group options:
+    *          base_url                The base url that an URL need to contain to identify this group. A wildcard can be used to catch all URL's
+    *          namespace               Namespace to find the controllers
+    *          public                  array of class constant references that dont need authentication. A wildcard can be used as well if everything should be public available.
+    *          authentication          An instance of IAuthenticationAgent that needs to handle the authentication of this group.
+    *                                  Polly\Support\Authentication\BasicAuthenticationAgent facilitates a default cookie/database based authenthication
+    *          authorization           An instance of IAuthorizationAgent that needs to handle the authorization of this group
+    *                                  Polly\Support\Authorization\RoleAuthorizationAgent facilitates a default role based autorization.
+    *
+    * All controllers needs to extends from Polly\Core\Controller
+    */
 
     /*
      * Uncatched exceptions can be catched by defining exception handlers.
      * Each row in the 'exception_handlers' is a handler. The key should be the class constant reference. A wildcard can be used to catch all exceptions.
      * If using wildcard, make sure to place it as last, since the exception handling works from top to bottom.
-     * Two types can be defined: 'view' and 'redirect'
+     * Two types can be defined: 'view', 'http' and 'redirect'
      *
      * View options:
      *      type            view
@@ -127,9 +110,11 @@ return
      *                      Use ! add the end to prevent the view from rendering through base (equivalent for setViewOnly)
      *
      * Redirect options:
-     *      type            redirect
+     *      type            http
      *      add_origin      if true, HTTP GET 'origin' header will be added on redirect.
      *      target          the relative url from the current routing group's base URL to redirect.
+
+     * Http option has no additional parameters since it only returns the http code.
      *
      * Universal options (work for view and redirect type)
      *      http_code       The http code to respond. Defining an http code will prevent returning data on XHR request
@@ -139,35 +124,72 @@ return
      *          title           A string for the title of the message. Can be a closure that returns the title. Can be useful when translation is needed.
      *          description     A string for the description of the message. Can be a closure that returns the message. Can be useful when translation is needed.
      */
+
+    'routing' =>
+    [
+        'groups' =>
+        [
+            [
+                'base_url'          => env('API_URL'),
+                'namespace'         => "App\Controllers\Api",
+                'public'            => [Auth::class, Version::class],
+                'authentication'    => ApiAuthenticationAgent::getInstance(UserService::getInstance()),
+                'exception_handlers' =>
+                    [
+                        '*' =>
+                            [
+                                'type' => 'http',
+                                'http_code' => 401
+                            ]
+
+                    ],
+            ],
+            [
+                'base_url'          => env('APP_URL'),
+                'namespace'         => "App\Controllers\Web",
+                'public'            => [Login::class],
+                'authentication'    => BasicAuthenticationAgent::getInstance(UserService::getInstance(), 0),
+                'authorization'     => RoleAuthorizationAgent::getInstance(),
+                'exception_handlers' =>
+                    [
+                        InvalidRouteException::class =>
+                            [
+                                'type' => 'view',
+                                'http_code' => 404,
+                                'target' => 'Error/404!'
+                            ],
+                        AuthorizeException::class =>
+                            [
+                                'type' => 'view',
+                                'http_code' => 403,
+                                'target' => 'Error/403!'
+                            ],
+                        AuthenticationException::class =>
+                            [
+                                'type' => 'redirect',
+                                'add_origin' => true,
+                                'target' => 'login',
+                                'http_code' => 401,
+                                'headers' => [ 'Polly-Require-Auth: true' ],
+                            ]
+                    ],
+            ]
+        ],
+    ],
+
+
+
+    /*
+     * The global exception handlers
+     */
     'exception_handlers' =>
     [
-        InvalidRouteException::class =>
-            [
-                'type' => 'view',
-                'http_code' => 404,
-                'target' => 'Error/404!'
-            ],
-        AuthorizeException::class =>
-            [
-                'type' => 'view',
-                'http_code' => 403,
-                'target' => 'Error/403!'
-            ],
-        AuthenticationException::class =>
-            [
-                'type' => 'redirect',
-                'add_origin' => true,
-                'target' => 'login',
-                'http_code' => 401,
-                'headers' => [ 'Polly-Require-Auth: true' ],
-            ],
         '*' =>
             [
                 'type' => 'view',
                 'http_code' => 500,
                 'target' => 'Error/500!'
             ]
-
     ],
 
     /*
@@ -186,6 +208,10 @@ return
 
     ],
 
+   /*
+    * Additional config for application.
+    * Add custom config as much as you want.
+    */
     'mailer' =>
     [
         'from_address'      => 'info@codens.nl',

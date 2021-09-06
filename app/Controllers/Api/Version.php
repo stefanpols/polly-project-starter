@@ -11,4 +11,5 @@ class Version extends ApiController
     {
         $this->response->version = Config::get('version');
     }
+
 }

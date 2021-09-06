@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use Polly\ORM\AbstractEntity;
 use App\Services\SessionService;
 use Polly\ORM\Annotations\Entity;
 use Polly\ORM\Annotations\ForeignId;
-use Polly\ORM\Validation\NotEmpty;
+use Polly\ORM\Annotations\LazyOne;
 use Polly\ORM\Annotations\Variable;
+use Polly\ORM\LazyLoader;
 use Polly\ORM\Types\DateTime;
 use Polly\ORM\Validation\Ip;
-use Polly\ORM\LazyLoader;
-use Polly\ORM\Annotations\LazyOne;
+use Polly\ORM\Validation\NotEmpty;
 
 #[Entity(SessionService::class)]
-class Session extends AbstractEntity
+class Session extends BaseModel
 {
 	#[ForeignId]
 	#[NotEmpty]

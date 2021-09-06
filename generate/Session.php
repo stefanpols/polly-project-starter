@@ -1,14 +1,11 @@
 <?php
 
 use Polly\ORM\Annotations\ForeignId;
-use Polly\ORM\Annotations\LazyMany;
 use Polly\ORM\Annotations\LazyOne;
 use Polly\ORM\Annotations\Variable;
 use Polly\ORM\Types\DateTime;
-use Polly\ORM\Validation\Email;
 use Polly\ORM\Validation\Ip;
 use Polly\ORM\Validation\NotEmpty;
-use Polly\ORM\Validation\Unique;
 
 return
     [

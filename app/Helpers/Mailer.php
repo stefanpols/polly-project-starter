@@ -25,7 +25,7 @@ class Mailer
         $mail->Subject  = utf8_decode($subject);
         $mail->Body     = mb_convert_encoding($content, 'HTML-ENTITIES', "UTF-8");
 
-        if(isset(Config::get("mailer")['send_copy']))
+        if(isset(Config::get("mailer",[])['send_copy']))
         {
             foreach(Config::get("mailer")['send_copy'] as $address)
             {

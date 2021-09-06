@@ -2,22 +2,21 @@
 
 namespace App\Models;
 
-use Polly\Interfaces\IAuthenticationModel;
-use Polly\ORM\AbstractEntity;
 use App\Services\UserService;
+use Polly\Interfaces\IAuthenticationModel;
 use Polly\ORM\Annotations\Entity;
-use Polly\ORM\Annotations\Variable;
-use Polly\ORM\Validation\NotEmpty;
-use Polly\ORM\Validation\Email;
-use Polly\ORM\Validation\Unique;
-use Polly\ORM\Types\DateTime;
-use Polly\ORM\LazyLoader;
 use Polly\ORM\Annotations\LazyMany;
+use Polly\ORM\Annotations\Variable;
+use Polly\ORM\LazyLoader;
+use Polly\ORM\Types\DateTime;
+use Polly\ORM\Validation\Email;
+use Polly\ORM\Validation\NotEmpty;
+use Polly\ORM\Validation\Unique;
 use Polly\Support\Authorization\IRoleAuthorizationModel;
 use Polly\Support\Authorization\RoleAuthorizationAgent;
 
 #[Entity(UserService::class)]
-class User extends AbstractEntity implements IAuthenticationModel, IRoleAuthorizationModel
+class User extends BaseModel implements IAuthenticationModel, IRoleAuthorizationModel
 {
 	#[Variable]
 	#[NotEmpty]
