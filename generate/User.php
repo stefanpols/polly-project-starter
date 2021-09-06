@@ -1,7 +1,6 @@
 <?php
 
 use Polly\ORM\Annotations\LazyMany;
-use Polly\ORM\Annotations\LazyOne;
 use Polly\ORM\Annotations\Variable;
 use Polly\ORM\Types\DateTime;
 use Polly\ORM\Validation\Email;
@@ -34,7 +33,7 @@ return
                     'annotations' => [Variable::class, NotEmpty::class]
                 ],
                 "active" => [
-                    'type' => 'int',
+                    'type' => 'bool',
                     'annotations' => [Variable::class, NotEmpty::class]
                 ],
             ],
