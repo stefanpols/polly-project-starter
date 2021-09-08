@@ -1,6 +1,10 @@
 <?php
 
+use Polly\Core\App;
 use Polly\Core\Authentication;
+use Polly\Core\Request;
+use Polly\Core\Router;
+use Polly\Helpers\Str;
 
 ?>
 <!doctype html>
@@ -16,33 +20,56 @@ use Polly\Core\Authentication;
     <link rel="manifest" href="site.webmanifest">
     <link rel="apple-touch-icon" href="icon.png">
 
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/icon-font.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/app.css">
 
     <meta name="theme-color" content="#fafafa">
 </head>
 
 <body>
-    <?php foreach(get_messages() as $message): ?>
-        <?=$message['type']?><br />
-        <?=$message['title']?><br />
-        <?=$message['description']?><br />
-    <?php endforeach; ?>
-    <hr />
-        <?=translate('current_datetime')?>: <?=datetime_to_text('%A %e %B %T', new \DateTime())?>
-    <hr />
-    <h1>Menu</h1>
-    <ul>
-        <li><a href="<?=site_url('index')?>">Home page</a></li>
-        <li><a href="<?=site_url('user')?>">User page</a></li>
-        <li><a href="<?=site_url('login/destroy')?>">Logout (ingelogd als: <?=Authentication::user()->getUsername()?>)</a></li>
-    </ul>
-    <hr />
-    <h1>Page content</h1>
-    <?=$content?>
-    <hr />
 
+    <?=view('Messages/Messages')?>
+
+    <header id="app-header">
+        <span class="w-50 "><?=translate('current_datetime')?>: <?=datetime_to_text('%A %e %B %T', new \DateTime())?></span>
+        <span class="w-50 text-end">User: <?=Authentication::user()->getUsername()?></span>
+
+    </header>
+
+    <main>
+        <div id="main-nav" class="" style="width: 280px;">
+            <span class="fs-4 text-white">Navigation</span>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+
+                <li class="nav-item">
+                    <a href="<?=site_url('index')?>" class="nav-link <?=Str::contains(Request::getUrl(), '/index') ? 'active' : 'text-white'?>" aria-current="page">
+                        <i class="bi bi-house me-2"></i> Home
+                    </a>
+                </li>
+                <li>
+                    <a href="<?=site_url('user')?>" class="nav-link <?=Str::contains(Request::getUrl(), '/user') ? 'active' : 'text-white'?>">
+                        <i class="bi bi-people me-2"></i>
+                        User
+                    </a>
+                </li>
+                <li>
+                    <a href="<?=site_url('login/destroy')?>" class="nav-link text-white">
+                        <i class="bi bi-unlock me-2"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div id="app">
+            <div class="app-body">
+                <?=$content?>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery.min.js"></script>
     <script src="js/main.js"></script>
 
     <script>
@@ -51,6 +78,7 @@ use Polly\Core\Authentication;
     </script>
 
     <script src="https://www.google-analytics.com/analytics.js" async></script>
+
 </body>
 
 </html>

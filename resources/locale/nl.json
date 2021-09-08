@@ -7,5 +7,7 @@
   "unique_validation_error":"Deze waarde is al in gebruik",
   "login_failed_title":"Inloggen mislukt",
   "login_failed_message":"Deze gebruikersnaam en wachtwoord combinatie komen niet overeen.",
+  "login_success_title":"Ingelogd",
+  "login_success_message":"Je bent succesvol ingelogd.",
   "current_datetime":"Huidige datum/tijd is"
 }

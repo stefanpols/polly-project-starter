@@ -22,8 +22,10 @@ class Login extends BaseController
 
     public function try()
     {
-        if(Authentication::login(Request::post('username'), Request::post('password')))
+        if(Authentication::login(Request::post('username') ?: "", Request::post('password') ?: ""))
         {
+            Session::addMessage(new Message(Message::SUCCESS, translate('login_success_title'), translate('login_success_message')));
+
             if(isset($_GET['origin']))
             {
                 $this->response->redirect($_GET['origin'], false);
@@ -36,7 +38,7 @@ class Login extends BaseController
         else
         {
             Session::addMessage(new Message(Message::DANGER, translate('login_failed_title'), translate('login_failed_message')));
-            $this->response->redirect('login');
+            $this->response->redirect((Request::get('origin') ?: '?origin='.Request::get('origin')), false);
         }
     }
 
