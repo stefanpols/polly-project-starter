@@ -25,6 +25,9 @@ return
     //Set debugging based on env's DEBUG value
     'debug' =>  (bool) env('DEBUG', false),
 
+    //Set bool if environment is production
+    'production' =>  env('ENVIRONMENT', 'dev') == 'prod',
+
     //Current version. Also used for asset url's
     'version' => env('VERSION', 1),
 
@@ -48,7 +51,7 @@ return
     'timezone' => 'Europe/Amsterdam',
 
     //Compressing the output by removing tabs and white spaces. Makes the output smaller and harder to read. Do not use with inline javascript.
-    'compress_output' => false,
+    'compress_output' => !(bool) env('DEBUG', false),
 
     //Class constant reference of the database driver to use.
     'db_driver' => PDODriver::class,
@@ -177,8 +180,6 @@ return
         ],
     ],
 
-
-
     /*
      * The global exception handlers
      */
@@ -208,18 +209,27 @@ return
 
     ],
 
-   /*
-    * Additional config for application.
-    * Add custom config as much as you want.
-    */
+    /*
+     * Additional config for application.
+     * Add custom config as much as you want.
+     */
     'mailer' =>
-    [
-        'from_address'      => 'info@codens.nl',
-        'from_name'         => 'Codens B.V.',
-        'log_address'       => 'info@codens.nl',
-        'log_name'          => 'Codens B.V.',
-        'send_copy'         => ['info@codens.nl'],
-    ]
+        [
+            'from_address'      => 'noreply@jkbbeheer.nl',
+            'from_name'         => 'Janssen Keuringsbedrijf B.V.',
+            'reply_address'     => 'info@jkbjanssen.nl',
+            'reply_name'        => 'Janssen Keuringsbedrijf B.V.',
+            'log_address'       => 'info@codens.nl',
+            'log_name'          => 'Codens B.V.',
+            'send_copy'         => ['info@codens.nl'],
+            'smtp'              =>
+                [
+                    'host'          => 'mail.antagonist.nl',
+                    'username'      => 'noreply@jkbbeheer.nl',
+                    'password'      => '2FohWu6f',
+                    'encryption'    => 'STARTTLS'
+                ],
+        ],
 
 
 ];

@@ -2,9 +2,14 @@
 
 namespace App\Services;
 
+use App\Helpers\Mailer;
+use App\Models\HistoryList;
+use App\Models\Item;
 use App\Models\User;
 use App\Repositories\UserRepository;
+use Polly\Core\Authentication;
 use Polly\Core\Database;
+use Polly\Helpers\Str;
 use Polly\Interfaces\IAuthenticationModel;
 use Polly\Interfaces\IAuthenticationService;
 use Polly\ORM\AbstractEntity;
@@ -30,18 +35,7 @@ class UserService extends RepositoryService implements IAuthenticationService
      */
     public static function all() : array
     {
-        return parent::all();
-    }
-
-
-    public static function delete(User|AbstractEntity $entity) : bool
-    {
-        if(parent::delete($entity))
-        {
-            foreach($entity->getSessions() as $session)
-                SessionService::delete($session);
-        }
-        return false;
+        return Authentication::user()->getClient()->getUsers();
     }
 
     /**
@@ -78,6 +72,11 @@ class UserService extends RepositoryService implements IAuthenticationService
         return $userSession->getUser();
     }
 
+    public static function findByUsername(string $username) : ?User
+    {
+        return self::getRepository()->findByUsername($username);
+    }
+
     /**
      * @param IAuthenticationModel $user
      * @return string returning session token
@@ -88,6 +87,52 @@ class UserService extends RepositoryService implements IAuthenticationService
         return $userSession->getToken();
     }
 
+    public static function save(User|AbstractEntity $entity): bool
+    {
+        $add = empty($entity->getId());
+        if(!$entity->getId())
+        {
+            $entity->setCreated(new DateTime());
+            $entity->setPassword(Str::random());
+        }
 
+        if(parent::save($entity))
+        {
+            if($add)
+            {
+                self::generateNewPassword($entity);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function generateNewPassword(User $user)
+    {
+        $user->hash($password = Str::randomPassword());
+        if (UserService::save($user))
+        {
+            $mail = Mailer::make("Nieuwe accountgegevens beschikbaar",
+                'Mails/Auth/AccountInformation', [
+                    'user'=>$user,
+                    'password'=>$password
+                ]);
+            $mail->addAddress($user->getUsername(), $user->getName());
+            return Mailer::send($mail);
+        }
+        return false;
+    }
+
+    public static function delete(User|AbstractEntity $entity): bool
+    {
+        foreach ($entity->getSessions() as $session)
+            SessionService::delete($session);
+
+        $entity->setActive(0);
+        $entity->setUsername((new DateTime())->format("d-m-Y_H-i-s")."@codens.deleted");
+        return self::save($entity);
+    }
 
 }

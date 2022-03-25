@@ -2,6 +2,7 @@
 <head>
 	<meta name="ProgId" content="Word.Document">
 	<style>
+
     	body
     	{
 			background:#f8f8f8; 
@@ -11,10 +12,11 @@
     	
     	body, p, a, td
     	{
-    	    font-size:13px; 
-			font-family:Tahoma, Verdana; 
-			line-height:20px;
-    	}
+            font-family:Poppins, Roboto, Tahoma, Arial,Helvetica,sans-serif;
+            font-weight: normal;
+            font-size: 15px;
+            color: #2F3044;
+        }
 
 		table table table
 		{
@@ -51,11 +53,13 @@
 </head>
 
 <body>
-	
+
+
+
 <table width="100%" background="#f8f8f8" border="0" cellpadding="0" cellspacing="0">
 	<tr>
 		<td align="center">
-			<table width="600" bgcolor="white" align="center" border="0" cellpadding="0" cellspacing="0" style="padding:20px;">
-				<tr>
-					<td align="left">
+			<table width="600" align="center" border="0" cellpadding="0" cellspacing="0" style="padding:20px;">
+				<tr  bgcolor="white">
+					<td align="left" bgcolor="white" style="padding:20px;">
 						<img src="cid:logo" title="<?=config('name')?>" alt="<?=config('name')?>"  width="300"/><br /><br />
