@@ -33,7 +33,7 @@ class UserRepository extends EntityRepository
      * @param AbstractEntity $entity
      * @return bool
      */
-    public function delete(AbstractEntity $entity) : bool
+    public function delete(AbstractEntity $entity, ?string $table = null) : bool
     {
         $queryBuilder = (new QueryBuilder())
             ->table($this->getTableName())

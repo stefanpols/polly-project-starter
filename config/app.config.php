@@ -215,19 +215,19 @@ return
      */
     'mailer' =>
         [
-            'from_address'      => 'noreply@jkbbeheer.nl',
-            'from_name'         => 'Janssen Keuringsbedrijf B.V.',
-            'reply_address'     => 'info@jkbjanssen.nl',
-            'reply_name'        => 'Janssen Keuringsbedrijf B.V.',
-            'log_address'       => 'info@codens.nl',
-            'log_name'          => 'Codens B.V.',
-            'send_copy'         => ['info@codens.nl'],
+            'from_address'      => 'noreply@mydomain.com',
+            'from_name'         => 'My Company name',
+            'reply_address'     => 'info@mydomain.com',
+            'reply_name'        => 'My Company name',
+            'log_address'       => 'info@myadmindomain.com',
+            'log_name'          => 'Admin company',
+            'send_copy'         => ['info@myadmincompany.com'],
             'smtp'              =>
                 [
-                    'host'          => 'mail.antagonist.nl',
-                    'username'      => 'noreply@jkbbeheer.nl',
-                    'password'      => '2FohWu6f',
-                    'encryption'    => 'STARTTLS'
+                    'host'          => '',
+                    'username'      => '',
+                    'password'      => '',
+                    'encryption'    => ''
                 ],
         ],
 

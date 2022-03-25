@@ -35,7 +35,7 @@ class UserService extends RepositoryService implements IAuthenticationService
      */
     public static function all() : array
     {
-        return Authentication::user()->getClient()->getUsers();
+        return parent::all();
     }
 
     /**

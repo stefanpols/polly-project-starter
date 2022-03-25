@@ -67,7 +67,12 @@ class User extends BaseModel implements IAuthenticationModel, IRoleAuthorization
 		$this->lastname = $lastname;
 	}
 
-	public function getUsername() : ?string
+    public function getName()
+    {
+        return $this->getFirstname().' '.$this->getLastname();
+    }
+
+    public function getUsername() : ?string
 	{
 		return $this->username;
 	}
@@ -119,6 +124,11 @@ class User extends BaseModel implements IAuthenticationModel, IRoleAuthorization
 	{
 		$this->sessions = $sessions;
 	}
+
+    public function hash(string $password): bool
+    {
+        return $this->password = password_hash($password, PASSWORD_BCRYPT);
+    }
 
     public function verify(string $password): bool
     {

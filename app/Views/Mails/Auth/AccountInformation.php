@@ -15,7 +15,7 @@ use Polly\Core\Config;
 <p style="margin-bottom: 30px;">Log in op <a href="<?=site_url('/')?>" style="color:#e41b12;" rel="noopener" target="_blank"><?=Config::get('name')?></a> met je gebruikersnaam en wachtwoord om het wachtwoord te wijzigen. De gebruikersnaam is gelijk aan het e-mail adres.</p>
 <p style="margin-bottom: 10px;">
     Met vriendelijke groet, <br>
-    Janssen Keuringsbedrijf B.V.
+    <?=Config::get('name')?>
 </p>
 
 
