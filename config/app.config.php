@@ -87,12 +87,14 @@ return
     * - System has a front-end (example.com) and a back-end system (backend.example.com).
     *
     * Options:
-    *      default_controller      Default controller to create when there could no controller be fetched from the URL. Default = index
-    *      default_method          Default method to invoke when there could no method be fetched from the URL. Default = index
+
     *      groups                  array with group options:
+    *          default_controller      Default controller to create when there could no controller be fetched from the URL. Default = index
+    *          default_method          Default method to invoke when there could no method be fetched from the URL. Default = index
     *          base_url                The base url that an URL need to contain to identify this group. A wildcard can be used to catch all URL's
     *          namespace               Namespace to find the controllers
     *          public                  array of class constant references that dont need authentication. A wildcard can be used as well if everything should be public available.
+               view_dir                Relative directory from the base view directory of the location of the view files.
     *          authentication          An instance of IAuthenticationAgent that needs to handle the authentication of this group.
     *                                  Polly\Support\Authentication\BasicAuthenticationAgent facilitates a default cookie/database based authenthication
     *          authorization           An instance of IAuthorizationAgent that needs to handle the authorization of this group
@@ -153,6 +155,7 @@ return
                 'public'            => [Login::class],
                 'authentication'    => BasicAuthenticationAgent::getInstance(UserService::getInstance(), 0),
                 'authorization'     => RoleAuthorizationAgent::getInstance(),
+                'view_dir'          => "/Portal",
                 'exception_handlers' =>
                     [
                         InvalidRouteException::class =>
@@ -176,6 +179,28 @@ return
                                 'headers' => [ 'Polly-Require-Auth: true' ],
                             ]
                     ],
+            ],
+            [
+                'base_url'          => env('WEB_URL'),
+                'namespace'         => "App\Controllers\Public",
+                'public'            => ["*"],
+                'default_controller'=> 'home',
+                'view_dir'          => "/Public",
+                'exception_handlers' =>
+                [
+                    InvalidRouteException::class =>
+                        [
+                            'type' => 'view',
+                            'http_code' => 404,
+                            'target' => 'Error/404!'
+                        ],
+                    '*' =>
+                        [
+                            'type' => 'view',
+                            'http_code' => 500,
+                            'target' => 'Error/500!'
+                        ]
+                ],
             ]
         ],
     ],
@@ -230,7 +255,6 @@ return
                     'encryption'    => ''
                 ],
         ],
-
 
 ];
 

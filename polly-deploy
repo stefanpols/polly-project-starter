@@ -1,0 +1,136 @@
+<?php
+
+use Polly\Core\App;
+use Polly\Core\Config;
+use Polly\Helpers\FileSystem;
+
+include('vendor/autoload.php');
+
+$options = getopt("", ["path:"]);
+
+if(!isset($options['path']) || empty($options['path']))
+{
+   // exit('No output path specified');
+}
+$outputDir = $options['path'] ?? null;
+
+if(is_dir($outputDir))
+{
+    FileSystem::removeDirectory($outputDir);
+}
+
+if(!FileSystem::directoryExists($outputDir, true))
+{
+    exit('Could not create directory: '.$outputDir);
+}
+
+App::initialize(__DIR__);
+$moduleDir = Config::get('path.views');
+
+//Copy all and replace .dist
+$ignoreDirs = ['.git', '.idea', 'generate', 'storage'];
+$ignoreFiles = ['.env','.gitignore', 'composer.json','composer.lock', '.gitkeep', 'SECURITY.md', 'VERSION', 'COMMITMENT', 'CHANGELOG.md', 'README.md', 'LICENSE'];
+$all = FileSystem::getDirectoryContent(App::getBasePath(), $ignoreDirs, $ignoreFiles);
+foreach($all as $fileOrDirectory)
+{
+    $newPath = str_replace(App::getBasePath(), $outputDir, $fileOrDirectory);
+    $newPath = str_replace("C:/Workspace/php/polly-framework", $outputDir."/vendor/polly/polly", $newPath);
+    if(is_dir($fileOrDirectory))
+    {
+        @mkdir($newPath, 0777, true);
+    }
+    else
+    {
+        if(str_ends_with($newPath, '.dist'))
+        {
+            $newPath = str_replace('.dist', '', $newPath);
+            if(is_file($newPath))
+                unlink($newPath);
+        }
+        copy($fileOrDirectory, $newPath);
+    }
+}
+
+//Create bundles
+$destViewDir =  $outputDir.'/app/Views/';
+$jsModulesBundle =  $outputDir.'/public/js/modules.bundle.js';
+$cssModulesBundle =  $outputDir.'/public/css/modules.bundle.css';
+if(is_file($jsModulesBundle)) unlink($jsModulesBundle);
+if(is_file($cssModulesBundle)) unlink($cssModulesBundle);
+FileSystem::createPath($jsModulesBundle);
+FileSystem::createPath($cssModulesBundle);
+
+$all = FileSystem::getDirectoryContent($destViewDir);
+
+foreach($all as $fileOrDirectory)
+{
+    if(str_ends_with($fileOrDirectory, '.js'))
+    {
+        file_put_contents($jsModulesBundle, file_get_contents($fileOrDirectory), FILE_APPEND | LOCK_EX);
+    }
+    if(str_ends_with($fileOrDirectory, '.css'))
+    {
+        file_put_contents($cssModulesBundle, file_get_contents($fileOrDirectory), FILE_APPEND | LOCK_EX);
+    }
+}
+
+
+//Minify all css/js
+$jsDir = $outputDir.'/public/js/';
+$cssDir = $outputDir.'/public/css/';
+$all = FileSystem::getDirectoryContent($jsDir);
+foreach($all as $fileOrDirectory)
+{
+    if(!str_ends_with($fileOrDirectory, '.min.js'))
+    {
+        $url = 'https://javascript-minifier.com/raw';
+        $js = file_get_contents($fileOrDirectory);
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ["Content-Type: application/x-www-form-urlencoded"],
+            CURLOPT_POSTFIELDS => http_build_query(["input" => $js])
+        ]);
+
+        $minified = curl_exec($ch);
+        curl_close($ch);
+
+        unlink($fileOrDirectory);
+        $fileName = str_replace(".js", "",$fileOrDirectory);
+        $newFileName = $fileName.'.min.js';
+        file_put_contents($newFileName, $minified);
+    }
+
+}
+
+$all = FileSystem::getDirectoryContent($cssDir);
+foreach($all as $fileOrDirectory)
+{
+    echo $fileOrDirectory;
+    if(!str_ends_with($fileOrDirectory, '.min.css'))
+    {
+        $url = 'https://www.toptal.com/developers/cssminifier/raw';
+        $css = file_get_contents($fileOrDirectory);
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ["Content-Type: application/x-www-form-urlencoded"],
+            CURLOPT_POSTFIELDS => http_build_query(["input" => $css])
+        ]);
+
+        $minified = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+
+        unlink($fileOrDirectory);
+        $fileName = str_replace(".css", "",$fileOrDirectory);
+        $newFileName = $fileName.'.min.css';
+        file_put_contents($newFileName, $minified);
+
+    }
+
+}
